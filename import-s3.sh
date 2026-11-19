@@ -77,6 +77,9 @@ log "reimport? ${REIMPORT}   skip-existing? ${SKIP_EXISTING}"
 
 if [ "${DRY_RUN}" -eq 1 ]; then log "dry-run: nothing was changed."; exit 0; fi
 
+# s3-import.py reads the S3 plane from the environment.
+export S3_ENDPOINT
+export S3_USER_FILES_BUCKET S3_TEMPLATE_FILES_BUCKET S3_PROJECT_BLOBS_BUCKET S3_CHUNKS_BUCKET OUTPUT_BUCKET
 export LEGACY_DATA STORES EXTRA REIMPORT SKIP_EXISTING
 python3 ./s3-import.py import
 log "verifying import..."
