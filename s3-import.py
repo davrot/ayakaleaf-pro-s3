@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""s3-import.py — upload the legacy Overleaf 6.2.0 filestore into the new
-6.3.1 stack's S3 plane (SeaweedFS), using the OFFICIAL Overleaf key rules
-(docs.overleaf.com/on-premises/maintenance/s3-migration), then verify.
+"""s3-import.py — upload the legacy Overleaf filestore into the S3 plane
+(SeaweedFS) used by the current Overleaf stack (6.3.4), using the OFFICIAL
+Overleaf key rules (docs.overleaf.com/on-premises/maintenance/s3-migration),
+then verify.
 
   store (legacy /var/lib/overleaf/data/...)    bucket (env)                    key rule
   ─────────────────────────────────────────    ─────────────────────────────    ──────────────────────────────
@@ -82,7 +83,8 @@ def key_for(store, relpath):
 
     user_files/template_files: first "_" of the top-level element → "/".
     History stores upload verbatim — the legacy on-disk layout already equals
-    the 6.3.1 S3 layout (reversed-project-id 3/3/18 + chunk/blob id, see
+    the S3 layout used by the current Overleaf stack (6.3.4)
+    (reversed-project-id 3/3/18 + chunk/blob id, see
     sharelatex ProjectKey.js naiveReverse and the official S3-migration
     guide: "The history directories already have the correct layout").
     """

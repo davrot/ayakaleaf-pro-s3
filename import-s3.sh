@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ─────────────────────────────────────────────────────────────────────────────
-# import-s3.sh — import the legacy 6.2.0 filestore into the new S3 plane
+# import-s3.sh — import the legacy filestore into the S3 plane
 # (SeaweedFS buckets), per the official Overleaf fs→S3 migration rules, then
 # verify (object counts + sample MD5 readback).
 #

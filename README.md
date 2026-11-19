@@ -1,10 +1,9 @@
-# Overleaf 6.2.0 → 6.3.1: filesystem → SeaweedFS(S3) migration — plan & tools
+# Overleaf: filesystem → SeaweedFS(S3) filestore migration — plan & tools
 
 Reproducible migration of the legacy Overleaf **filestore** (e.g.
-`overleaf.pip.uni-bremen.de`, `sharelatex/sharelatex:6.2.0`) into the new
-stack at `/data_1/docker/compose` (`sharelatex/sharelatex:ext-ce-v6.3.1`,
-S3 filestore on SeaweedFS), developed on the **test server** so nothing
-meaningful can be destroyed.
+`overleaf.pip.uni-bremen.de`) to the S3 filestore on SeaweedFS used by the
+current Overleaf stack (6.3.4) at `/data_1/docker/compose`, developed on the
+**test server** so nothing meaningful can be destroyed.
 
 All tools live in this directory and are parameterized via `common.conf`
 (env vars override), so the SAME toolset migrates every other server — you
@@ -12,12 +11,12 @@ only change the source backup location.
 
 ## 1. What actually has to move (verified against the real backup)
 
-The legacy 6.2.0 filestore data plane (from `/root/other_server/compose_cep`,
+The legacy filestore data plane (from `/root/other_server/compose_cep`,
 host dir `overleafserver/data` ≙ `/var/lib/overleaf/data`):
 
 | Data | Location (legacy) | Migration target (new stack) |
 |---|---|---|
-| **History chunk content** (Go history-v1, 6.2): **12 557 files, 3.7 GB** under `data/history/overleaf-chunks/<revproj3>/<revproj3>/<revproj18>/<chunkid>` | `overleafserver/data/data/history/overleaf-chunks` | **S3 bucket `overleaf-chunks`** — layout already 1:1 (see §5) |
+| **History chunk content** (Go history-v1): **12 557 files, 3.7 GB** under `data/history/overleaf-chunks/<revproj3>/<revproj3>/<revproj18>/<chunkid>` | `overleafserver/data/data/history/overleaf-chunks` | **S3 bucket `overleaf-chunks`** — layout already 1:1 (see §5) |
 | Uploaded binary files | `data/user_files` — **0 files** on this server | S3 bucket `overleaf-user-files` (generic tooling supports it) |
 | Template files | `data/template_files` — **0 files** | S3 bucket `overleaf-template-files` (generic tooling) |
 | History project-blobs (S3 style) | `data/history/overleaf-project-blobs` — **absent** here (blobs live in mongo `projectHistoryBlobs`, 0.5 MB) | S3 bucket `overleaf-project-blobs` (generic tooling) |
@@ -51,14 +50,14 @@ host dir `overleafserver/data` ≙ `/var/lib/overleaf/data`):
 All destructive tools require `--yes`; all support `--dry-run`; the legacy
 backup is strictly READ-ONLY.
 
-## 4. S3 key layout (official rules, confirmed in 6.3.1 source)
+## 4. S3 key layout (official rules, confirmed in the 6.3.4 source)
 
 Official migration guide
 (docs.overleaf.com/on-premises/maintenance/s3-migration): local filestore
 layout is `<project-id>_<file-id>`, S3 layout is `<project-id>/<file-id>`
 (first top-level underscore → slash); **history directories already have the
 correct layout** and upload verbatim. Cross-checked against the
-`ext-ce-v6.3.1` source: `sharelatex` ProjectKey (`naiveReverse(projectId)`
+6.3.4 `sharelatex` source: ProjectKey (`naiveReverse(projectId)`
 split 3/3/18) — the legacy disk layout
 `overleaf-chunks/920/9ac/238ed6e0acf76502a6/6a205af8…` is exactly
 `<reversed-pid 3/3/18>/<chunkObjectId>`, i.e. verbatim upload is correct.
