@@ -9,17 +9,19 @@
 #   4. verify                       automated + manual UI checklist
 #
 # Flags: --yes-all (runs destructive steps without interactive pause),
-#        --wipe (blank-slate the S3 buckets first)
+#        --wipe (blank-slate the S3 buckets first),
+#        --with-exports (also import legacy export zips as exports/<name>)
 # ─────────────────────────────────────────────────────────────────────────────
 set -Eeuo pipefail
 cd "$(dirname "$0")"
 # shellcheck source=./common.conf
 . ./common.conf
 
-YES_ALL=0; WITH_WIPE=0; STEP="${STEP:-1}"
+YES_ALL=0; WITH_WIPE=0; WITH_EXPORTS=""; STEP="${STEP:-1}"
 for a in "$@"; do case "$a" in
   --yes-all) YES_ALL=1 ;;
   --wipe) WITH_WIPE=1 ;;
+  --with-exports) WITH_EXPORTS="--with-exports" ;;
   -h|--help) sed -n '3,14p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
   *) die "unknown flag: $a (try --help)" ;;
 esac; done
@@ -44,7 +46,7 @@ fi
 
 if [ "${STEP}" -le 3 ]; then
   pause "Import the legacy filestore/history into S3 (--reimport)?"
-  step 3 ./import-s3.sh --reimport
+  step 3 ./import-s3.sh --reimport ${WITH_EXPORTS}
 fi
 
 if [ "${STEP}" -le 4 ]; then

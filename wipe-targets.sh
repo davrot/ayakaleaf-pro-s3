@@ -18,7 +18,7 @@ YES=0; DRY_RUN=0
 for a in "$@"; do case "$a" in
   --yes) YES=1 ;;
   --dry-run) DRY_RUN=1 ;;
-  -h|--help) sed -n '3,12p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+  -h|--help) sed -n '3,11p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
   *) die "unknown flag: $a (try --help)" ;;
 esac; done
 
