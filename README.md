@@ -18,6 +18,11 @@ an idempotent, byte-level copy to S3 with MD5 verification.
 
 `cache/`, `compiles/`, `tmp/` are transient and **not** migrated.
 
+> Per the official guide, Overleaf ≥ 6.0.0 no longer uses the legacy
+> `user_files` store — in practice only `template_files` + the two history
+> dirs carry data. The tools still copy `user_files` if present (harmless; it
+> is usually empty), so this toolset is safe on both old and new backups.
+
 **Key rule** (user_files / template_files only): the local layout is
 `<project-id>_<file-id>`, the S3 layout is `<project-id>/<file-id>` — the first
 top-level underscore becomes a slash. History directories already match the
@@ -49,6 +54,8 @@ resumes at step n). All destructive tools require `--yes`; all support
 
 ## Per-server notes
 
+* **Keep the legacy `/var/lib/overleaf` bind-mount.** It may hold Zotero /
+  Mendeley encryption keys that are not stored in S3 (official guide).
 * Config (invite token, OIDC/Zotero/GitHub client creds, site identity) is
   **not** part of the filestore — copy it from the legacy `.env` to the target
   and confirm it with `preflight.sh`.
